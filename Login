@@ -1,0 +1,39 @@
+
+from flask  import Flask, request, render_template
+import mysql.connector
+
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    passwd="*****",
+    database="FlaskData")
+
+mycursor = db.cursor()
+app = Flask(__name__)
+
+app.config["SECRET_KEY"] = "f815fd1ac604b746c72a85b33567962f"
+
+@app.route("/", methods=["GET", "POST"])
+def root():
+    username = ''
+    email = ''
+    password = ''
+    image = ''
+    if request.method == "POST" and "username" in request.form:
+        username = request.form.get("username")
+        email = request.form.get("email")
+        password = request.form.get("password")
+        #image = request.files['image']
+
+        mycursor.execute("INSERT INTO UserInfo (Username, Password,Email,Image) VALUES(%s,%s,%s,%s)",
+                         (username, password, email, image))
+        db.commit()
+
+    return render_template("Website.html",
+                           username=username,
+                           email=email,
+                           password=password,
+                           image=image
+                           )
+
+app.run()
